@@ -21,14 +21,33 @@ function fakeobj(x)
     return leaker_obj.a;
 }
 
-function read_mem(p, sz)
+function read_mem_setup(p, sz)
 {
     i48_put(p, oob_master);
     oob_master[6] = sz;
+}
+
+function read_mem(p, sz)
+{
+    read_mem_setup(p, sz);
     var arr = [];
     for(var i = 0; i < sz; i++)
         arr.push(oob_slave[i]);
     return arr;
+}
+
+function read_mem_s(p, sz)
+{
+    read_mem_setup(p, sz);
+    return ""+oob_slave;
+}
+
+function read_mem_b(p, sz)
+{
+    read_mem_setup(p, sz);
+    var b = new Uint8Array(sz);
+    b.set(oob_slave);
+    return b;
 }
 
 function write_mem(p, data)
