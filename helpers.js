@@ -53,7 +53,7 @@ function read_mem_b(p, sz)
 function write_mem(p, data)
 {
     i48_put(p, oob_master);
-    oob_master[6] = sz;
+    oob_master[6] = data.length;
     for(var i = 0; i < data.length; i++)
         oob_slave[i] = data[i];
 }
