@@ -2,3 +2,4 @@ got+786	libkernel
 got+97	?? (>15MB)
 got+797	?? (1.29MB)
 got+582	libc
+//to dump webkit using dump_module.py, pass -1 as got offset
