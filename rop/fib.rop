@@ -1,0 +1,78 @@
+$$var retbuf = malloc(80);
+
+#text
+pop rcx
+dp rdi_bak
+mov [rcx], rdi
+pop rdi
+$retbuf
+
+loop:
+
+#load numbers
+pop rax
+num2:
+dq 1
+pop rcx
+num1:
+dq 1
+
+#move num2 to num1
+pop rsi
+dp num1
+mov [rsi], rax
+
+#perform addition
+add rax, rcx
+
+#store result in num2
+pop rsi
+dp num2
+mov [rsi], rax
+
+#write output
+mov [rdi], rax
+pop rsi
+dq -8
+sub rdi, rsi ; mov rdx, rdi
+
+#check end
+pop rcx
+$retbuf+80
+cmp rcx, rdi ; setne al
+movzx eax, al
+
+#multiply by 16
+shl rax, 3
+mov rsi, rax ; mov rax, rsi
+add rax, rsi
+
+#add offset
+pop rcx
+dp condjump
+add rax, rcx
+pop rsi
+dp pop_rsp
+mov [rsi], rax
+pop rsp
+pop_rsp:
+dq 0
+
+condjump:
+
+#here if zero
+pop rsp
+dp finish
+
+#here if nonzero (+16)
+pop rsp
+dp loop
+
+finish:
+pop rdi
+rdi_bak:
+dq 0
+$pivot_addr
+
+$$pivot(ropchain);
+$$print(read_mem(retbuf, 80));

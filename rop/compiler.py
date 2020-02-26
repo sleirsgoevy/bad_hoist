@@ -42,10 +42,10 @@ def final_pass(l, ls, gs):
             ans.append('write_ptr_at(ropchain+%d, %s);'%(sp_offset, i[1:]))
         elif i.startswith('dp '):
             offset = eval(i[3:], ls)
-            ans.append('write_ptr_at(ropchain+%d, ropchain+%d);'%(sp_offset, offset))
+            ans.append('write_ptr_at(ropchain+%d, ropchain+%d); //%s'%(sp_offset, offset, i[3:]))
         elif i.startswith('dq '):
             data = eval(i[3:], ls)
-            ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list(data.to_bytes(8, 'little'))))
+            ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list((data & 0xffffffffffffffff).to_bytes(8, 'little'))))
         elif i in gs:
             file, offset = gs[i]
             ans.append('write_ptr_at(ropchain+%d, %s_base+%d); //%s'%(sp_offset, file, offset, i))
