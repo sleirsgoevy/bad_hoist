@@ -6,6 +6,10 @@ def prepass(l):
     for i in l:
         if i.endswith(':'):
             labels[i[:-1]] = sp_offset
+        elif i.startswith('db '):
+            q = bytes(list(eval('('+i[3:]+')')))
+            assert len(q) % 8 == 0
+            sp_offset += len(q)
         elif not i.startswith('$$'): sp_offset += 8
     return labels
 
@@ -46,6 +50,12 @@ def final_pass(l, ls, gs):
         elif i.startswith('dq '):
             data = eval(i[3:], ls)
             ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list((data & 0xffffffffffffffff).to_bytes(8, 'little'))))
+        elif i.startswith('db '):
+            data = bytes(list(eval('('+i[3:]+')')))
+            assert len(data) % 8 == 0
+            ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list(data)))
+            sp_offset += len(data)
+            continue
         elif i in gs:
             file, offset = gs[i]
             ans.append('write_ptr_at(ropchain+%d, %s_base+%d); //%s'%(sp_offset, file, offset, i))

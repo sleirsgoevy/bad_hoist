@@ -7,6 +7,9 @@ function print(){} // used for debug prints. you may want to supply your own ver
 <script src="helpers.js"></script>
 <script src="malloc.js"></script>
 <script src="rop/rop.js"></script>
+<script src="rop/fcall.txt"></script> <!-- must be compiled from rop/fcall.rop -->
+<script src="rop/syscalls.txt"></script> <!-- run objdump -D libkernel.o | python3 rop/syscalls.py -->
+<script src="rop/fs.js"></script>
 <!-- add your own scripts here -->
 </body>
 </html>
