@@ -57,11 +57,15 @@ function listdir(path)
     {
         var q = sys_getdents(fd);
         if(!q)
+        {
+            sys_close(fd);
             throw "getdents failed";
+        }
         if(!q.length)
             break;
         for(var i = 0; i < q.length; i++)
             ans.push(q[i]);
     }
+    sys_close(fd);
     return ans;
 }
