@@ -23,6 +23,7 @@ def parse_gadgets(l):
         try: addr = int(addr, 16)
         except ValueError: continue
         gadget = gadget.strip()
+        if gadget == 'ret': gadget = 'nop ; ret'
         if not gadget.endswith(' ; ret'): continue
         gadget = gadget[:-6].replace(' ptr ', ' ')
         gadgets[gadget] = (file, addr)
