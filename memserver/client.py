@@ -51,7 +51,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 class Server(socketserver.ThreadingMixIn, http.server.HTTPServer): pass
 
 srv = Server(('', 8080), RequestHandler)
-threading.Thread(target=srv.serve_forever).start()
+threading.Thread(target=srv.serve_forever, daemon=True).start()
 
 def read_mem(offset, size):
     out_q.put((offset, size))

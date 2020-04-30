@@ -1,4 +1,9 @@
-import sys
+import sys, threading, signal, os
+
+print('Navigate the PS4 web browser to port 8080 on this PC')
+print('(or just press OK if you are already on error screen)')
+print('When you hit the error screen (again), press Enter on this PC.')
+
 from client import read_mem, read_ptr, tarea
 
 some_func = read_ptr(read_ptr(read_ptr(tarea+0x18)))
@@ -19,8 +24,21 @@ data = b''
 
 chunk_sz = 1
 
-while True:
-    data += read_mem(got_func + len(data), chunk_sz)
-    if chunk_sz < 1024:
-        chunk_sz *= 2
-    print(len(data))
+def watchdog_thread():
+    input()
+    os.kill(os.getpid(), signal.SIGINT)
+
+threading.Thread(target=watchdog_thread, daemon=True).start()
+
+try:
+    while True:
+        data += read_mem(got_func + len(data), chunk_sz)
+        if chunk_sz < 1024:
+            chunk_sz *= 2
+        print(len(data), end=' bytes loaded\r')
+except KeyboardInterrupt:
+    print('\nKeyboardInterrupt')
+
+if len(sys.argv) > 2:
+    print('saving to', sys.argv[2])
+    with open(sys.argv[2], 'wb') as file: file.write(data)
