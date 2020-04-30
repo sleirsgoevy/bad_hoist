@@ -7,10 +7,12 @@ all: ../dumps/webkit.elf ../dumps/libc.elf ../dumps/libkernel.elf
 
 ../dumps/libc.bin:
 	mkdir -p ../dumps
+	echo 'Estimated download size: 1.2 MB'
 	python3 dump_module.py 582 ../dumps/libc.bin
 
 ../dumps/libkernel.bin:
 	mkdir -p ../dumps
+	echo 'Estimated download size: 200 KB'
 	python3 dump_module.py 705 ../dumps/libkernel.bin
 
 ../dumps/%.asm: ../dumps/%.bin
