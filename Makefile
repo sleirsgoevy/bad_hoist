@@ -14,7 +14,7 @@ dumps/libc-gadgets.txt: dumps
 	ROPgadget --binary dumps/libc.elf > dumps/libc-gadgets.txt
 
 dumps/gadgets.txt: dumps/webkit-gadgets.txt dumps/libc-gadgets.txt
-	grep '' dumps/webkit-gadgets.txt dumps/libc-gadgets.txt > dumps/gadgets.txt
+	cd dumps; grep '' webkit-gadgets.txt libc-gadgets.txt > gadgets.txt
 
 dumps/syscalls.txt: dumps
 	objdump -D dumps/libkernel.elf | python3 rop/syscalls.py > dumps/syscalls.txt

@@ -12,8 +12,8 @@ all: ../dumps/webkit.elf ../dumps/libc.elf ../dumps/libkernel.elf
 
 ../dumps/libkernel.bin:
 	mkdir -p ../dumps
-	echo 'Estimated download size: 200 KB'
-	python3 dump_module.py 705 ../dumps/libkernel.bin
+	echo 'Estimated download size: 300 KB'
+	python3 dump_module.py 705,-0x10000 ../dumps/libkernel.bin
 
 ../dumps/%.asm: ../dumps/%.bin
 	printf 'section .text\nuse64\nincbin "$<"' > $@
