@@ -50,6 +50,15 @@ function read_mem_b(p, sz)
     return b;
 }
 
+function read_mem_as_string(p, sz)
+{
+    var x = read_mem_b(p, sz);
+    var ans = '';
+    for(var i = 0; i < x.length; i++)
+        ans += String.fromCharCode(x[i]);
+    return ans;
+}
+
 function write_mem(p, data)
 {
     i48_put(p, oob_master);

@@ -54,7 +54,7 @@ def final_pass(l, ls, gs):
         elif i.startswith('db '):
             data = bytes(list(eval('('+i[3:]+')')))
             assert len(data) % 8 == 0
-            ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list(data)))
+            if any(data): ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list(data)))
             sp_offset += len(data)
             continue
         elif i in gs:
