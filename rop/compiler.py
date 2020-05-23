@@ -22,10 +22,17 @@ def parse_gadgets(l):
         file = file[:-12]
         try: addr = int(addr, 16)
         except ValueError: continue
+        if '//' in gadget:
+            gadget, binrepr = gadget.split('//', 1)
+            binrepr = bytes.fromhex(binrepr)
+        else:
+            binrepr = None
         gadget = gadget.strip()
         if gadget == 'ret': gadget = 'nop ; ret'
         if not gadget.endswith(' ; ret'): continue
         gadget = gadget[:-6].replace(' ptr ', ' ')
+        if gadget == 'movsxd rax, edi' and binrepr != None and not binrepr.startswith(b'\x48'):
+            addr -= 1
         gadgets[gadget] = (file, addr)
         for i in 'byte', 'word', 'dword', 'qword':
             gadget = gadget.replace(' '+i+' ', ' ')

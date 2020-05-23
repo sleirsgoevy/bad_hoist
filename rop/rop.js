@@ -37,6 +37,9 @@ var setjmp_addr = libc_base+0xbfae0;
 var longjmp_addr = libc_base+0xbfb30;
 var pivot_addr = libc_base+0x327d2;
 var infloop_addr = libc_base+0x447a0;
+var jop_frame_addr = libc_base+0x715d0;
+var get_errno_addr_addr = libkernel_base+0x9ff0;
+var pthread_create_addr = libkernel_base+0xf980;
 
 function saveall()
 {

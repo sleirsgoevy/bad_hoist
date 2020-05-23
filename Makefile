@@ -8,10 +8,10 @@ dumps: always_run
 	cd memserver; make all
 
 dumps/webkit-gadgets.txt: dumps
-	ROPgadget --binary dumps/webkit.elf > dumps/webkit-gadgets.txt
+	ROPgadget --binary dumps/webkit.elf --dump > dumps/webkit-gadgets.txt
 
 dumps/libc-gadgets.txt: dumps
-	ROPgadget --binary dumps/libc.elf > dumps/libc-gadgets.txt
+	ROPgadget --binary dumps/libc.elf --dump > dumps/libc-gadgets.txt
 
 dumps/gadgets.txt: dumps/webkit-gadgets.txt dumps/libc-gadgets.txt
 	cd dumps; grep '' webkit-gadgets.txt libc-gadgets.txt > gadgets.txt
