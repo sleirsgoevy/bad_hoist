@@ -33,6 +33,7 @@ var webkit_base = read_ptr_at(fake_vtable);
 var libkernel_base = get_got_addr(705)-0x10000;
 var libc_base = get_got_addr(582);
 var saveall_addr = libc_base+0x2e2c8;
+var loadall_addr = libc_base+0x3275c;
 var setjmp_addr = libc_base+0xbfae0;
 var longjmp_addr = libc_base+0xbfb30;
 var pivot_addr = libc_base+0x327d2;
