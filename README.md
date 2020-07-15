@@ -4,7 +4,7 @@ This is an **actually working** implementation of Fire30's [bad_hoist exploit](h
 
 ## Supported firmwares
 
-This exploit has been tested and proven to be working on FW 6.51. This should work up to 6.72 with minor changes, however various offsets need to be adjusted.
+This exploit has been tested and proven to be working on FW 6.51. ~~This should work up to 6.72 with minor changes, however various offsets need to be adjusted~~ 6.72 confirmed to be working.
 
 ## ROP compiler setup
 
