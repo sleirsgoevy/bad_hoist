@@ -24,7 +24,7 @@ def parse_gadgets(l):
         except ValueError: continue
         if '//' in gadget:
             gadget, binrepr = gadget.split('//', 1)
-            binrepr = bytes.fromhex(binrepr)
+            binrepr = bytes.fromhex(binrepr.strip())
         else:
             binrepr = None
         gadget = gadget.strip()
