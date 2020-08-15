@@ -37,11 +37,11 @@ callq  ffffffffff667408 <__bss_start+0xfffffffffdd5c408>
 callq  ffffffffff667418 <__bss_start+0xfffffffffdd5c418>
 ```
 
-Here `0xffffffffff667308` is the first of a few hundreds of similarly looking entries. Probably it's the start of the GOT (or PLT, don't care much about the terminology). This means that the GOT is located `(1 << 64) - 0xffffffffff667308` bytes below the leaked virtual method.
+Here `0xffffffffff667308` is the first of a few hundreds of similarly looking entries. Probably it's the start of the GOT (or PLT, don't care much about the terminology). This means that the GOT is located `(1 << 64) - 0xffffffffff667308` bytes below the leaked virtual method. for ex the above conversion give you a value like 10063096
 (Note: The patter will emerge in the middle of the file)
 
 # 3 Dupming GOT entries
-1. The GOT base address needs to updated in `bad_hoist/dumpers/dump_got.js` on line 11, this address comes from objdump of webkit.elf
+1. The GOT base address needs to updated in `bad_hoist/dumpers/dump_got.js` on line 11, this address comes from above step (ex 10063096)
 2. Add these files to web server and launch it in ps4
 3. This  will create a file called `bad_hoist/dumpers/baseAddress.txt` in the same directory which will have all the address.
 4. This will take atleast takes 2 to 3 minutes to complete, you will alerted in ps4 once its completed
