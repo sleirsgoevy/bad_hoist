@@ -4,10 +4,18 @@ This document will guide you through the process of getting this toolchain up an
 
 This is more-or-less what I did for 6.51 (I didn't have any userspace dumps back then). 6.72 happened to be "compatible enough", so no more porting was required.
 
-# 1. Find GOT offset
+# 1. Dumping Webkit.bin
 
-Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). Then disassemble the dumped binary, extract all `CALL imm32` instructions, and sort by the target address:
+Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). 
 
+# 2. Find GOT 
+We can do this by automated approch (2.1) if it not working then we do the manual (2.2)
+# 2.1 GOT - Automated
+you can run the below command which will give you the GOT start
+python3 bad_hoist/GOTSearch.py bad_hoist/dumps/webkit.elf
+
+# 2.2 GOT - Manual
+ Then disassemble the dumped binary (wbekit.bin), extract all `CALL imm32` instructions, and sort by the target address:
 `objdump -D bad_hoist/dumps/webkit.elf | grep 'call[^%]*$' | cut -d "$(printf '\t')" -f 3- | sort | uniq | less`
 
 You'll see something like this in the dump:
@@ -29,7 +37,8 @@ callq  ffffffffff667418 <__bss_start+0xfffffffffdd5c418>
 ```
 
 Here `0xffffffffff667308` is the first of a few hundreds of similarly looking entries. Probably it's the start of the GOT (or PLT, don't care much about the terminology). This means that the GOT is located `(1 << 64) - 0xffffffffff667308` bytes below the leaked virtual method.
-# Note: The patter will emerge in the middle of the file
+(Note: The patter will emerge in the middle of the file)
+
 
 Now insert this offset into `bad_hoist/dumpers/dump_got.js` at line 11, and load a page that loads exploit.js, helpers.js, malloc.js, dumpers/dump_got.js. `print` function should be somehow routed to your dev PC.
 
