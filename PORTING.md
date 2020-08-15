@@ -9,7 +9,7 @@ This is more-or-less what I did for 6.51 (I didn't have any userspace dumps back
 Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). 
 
 # 2. Find GOT 
-We can do this by automated approch (2.1), if its not working then we do the manual (2.2)
+We can do this by automated approch (2.1), if its not working then we can do the manual (2.2)
 
 # 2.1 GOT - Automated
 you can run the below command which will give you the GOT start
@@ -54,7 +54,7 @@ Here `0xffffffffff667308` is the first of a few hundreds of similarly looking en
 5. Repeat the steps 2 to 4 to get a `baseAddress.txt` with any "!decrement" value in it
 
 # 4. Find GOT entries corresponding to the required modules
-We can do this by automated approch (4.1), if its not working then we do the manual (4.2)
+We can do this by automated approch (4.1), if its not working then we can do the manual (4.2)
 
 # 4.1 Find GOT entries - Automated
 you can run the below command which will find the address jumps of each blocks and print it in the screen
