@@ -7,12 +7,9 @@ import os
 import sys
 import subprocess
 
-if not os.path.isfile('webkit.elf'):
-	print ('please place "webkit.elf" in the same folder and try again')
-	sys.exit()
-print("Search may take a minute oe two please wait")
-
-ProcOut=subprocess.check_output("""objdump -D webkit.elf | grep 'call[^%]*$' | cut -d "$(printf '\t')" -f 3- | sort | uniq | less""", shell=True)
+cmd="""objdump -D "webkit.elf" | grep 'call[^%]*$' | cut -d "$(printf '\t')" -f 3- | sort | uniq | less"""
+cmd=cmd.replace("webkit.elf",sys.argv[1])
+ProcOut=subprocess.check_output(cmd, shell=True).decode()
 ProcList=ProcOut.split("\n")
 ProcList.sort(reverse=True)
 
@@ -38,5 +35,3 @@ for k,ln in enumerate(ProcList):
 
 		break;
 	lastKnown=number16
-
-	
