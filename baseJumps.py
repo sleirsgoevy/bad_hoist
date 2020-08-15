@@ -6,7 +6,14 @@ import os
 import sys
 import subprocess
 
+import os
+import sys
+import subprocess
 
+
+if open(sys.argv[1]).read().count("decrement!")>0:
+	print ('The base GOT is not valid please add 16 to the base GOT, until you see decrement! in the dumpped text')
+	sys.exit()
 	
 jumps= []
 unSortedArray=[]
