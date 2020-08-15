@@ -99,20 +99,26 @@ bad_hoist/ $ make
 
 1. Line 16. Insert the correct GOT offset.
 2. Lines 33-34. Insert the correct libc & libkernel bases. The numbers are the same as in Makefile.
-3. Lines 35-43:
+# 7.Lines 35-43 in `rop/rop.js`:
+We can do this by automated approch (7.1), if its not working then we can do the manual (7.2)
 
-3.1. `loadall` is the function in libc that contains the pivot() gadget.
+# 7.1 updating Lines 35-43 of `rop/rop.js`- Automated
+you can run the below command which will which will print the values you have replace 
+`python3 bad_hoist/addForRop.py bad_hoist/dumps`
 
-3.2. `saveall` is a twin function of `loadall` that saves registers instead of restoring them.
+# 7.2 updating Lines 35-43 of `rop/rop.js`- Manual
+7.2.1. `loadall` is the function in libc that contains the pivot() gadget.
 
-3.3. `setjmp` and `longjmp` are not used, as `loadall` and `saveall` play the same role here. You can just strip these out.
+7.2.2. `saveall` is a twin function of `loadall` that saves registers instead of restoring them.
 
-3.4. `pivot` is the pivot() gadget, see above.
+7.2.3. `setjmp` and `longjmp` are not used, as `loadall` and `saveall` play the same role here. You can just strip these out.
 
-3.5. `infloop` is a EB FE (`.loop\njmp loop`) gadget, not used in the end exploit but is useful for debugging ropchains.
+7.2.4. `pivot` is the pivot() gadget, see above.
 
-3.6. `jop_frame` is a JOP gadget that reads as `push rbp ; mov rbp, rsp ; mov rax, [rdi] ; call qword [rax]`. It is used for cleanly returning from subthreads, see `ps4-rop-8cc/librop/extcall.{c,h}`.
+7.2.5. `infloop` is a EB FE (`.loop\njmp loop`) gadget, not used in the end exploit but is useful for debugging ropchains.
 
-3.7. `get_errno_addr` is a function that returns the address of the errno(3) variable for the current thread. To find this address, follow the `jb` jump after any syscall instruction, then follow an indirect jump, and you will see a CALL to this function.
+7.2.6. `jop_frame` is a JOP gadget that reads as `push rbp ; mov rbp, rsp ; mov rax, [rdi] ; call qword [rax]`. It is used for cleanly returning from subthreads, see `ps4-rop-8cc/librop/extcall.{c,h}`.
 
-3.8. `pthread_create` is the only function in libkernel that calls the `thr_new` syscall wrapper. First find the wrapper by searching for the thr_new syscall number, then find a call to this wrapper, then search backward for a function prologue.
+7.2.7. `get_errno_addr` is a function that returns the address of the errno(3) variable for the current thread. To find this address, follow the `jb` jump after any syscall instruction, then follow an indirect jump, and you will see a CALL to this function.
+
+7.2.8. `pthread_create` is the only function in libkernel that calls the `thr_new` syscall wrapper. First find the wrapper by searching for the thr_new syscall number, then find a call to this wrapper, then search backward for a function prologue.
