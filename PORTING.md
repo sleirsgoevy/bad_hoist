@@ -49,9 +49,9 @@ Here `0xffffffffff667308` is the first of a few hundreds of similarly looking en
 # Note
 1. If the `baseAddress.txt` file has `!decrement` text in it. then it inicates base address need to be adjusted
 2. for example if you have used "10063096" as base GOT address and you see "!decrement" 5 times in the file, you have add 80 toward the base
-3. logic is for each `!decrement` add 16 to wards the base
+3. logic is for each `!decrement` add 16 towards the base
 4. So your correct GOT base would be 10063176 (10063096 +16 +16 +16 +16 +16)
-5. Repeat the steps 2 to 4 to get a `baseAddress.txt` with any "!decrement" value in it
+5. Update the correct GOT bBase and Repeat the steps 2 to 4 to get a `baseAddress.txt` with any "!decrement" value in it
 
 # 4. Find GOT entries corresponding to the required modules
 We can do this by automated approch (4.1), if its not working then we can do the manual (4.2)
