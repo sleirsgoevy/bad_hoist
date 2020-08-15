@@ -75,7 +75,7 @@ Here for each module are a few dozens of pointers pointing into it. If two conse
 
 In a 6.72 dump, 5 modules can be obviously separated this way. It turns out that both libc and libkernel are amongst them.
 
-# 3. Dump modules
+# 5. Dump modules
 
 Once you know a "base address" (not a base address actually, but rather address of some random function inside the module) you can try dumping the module. Go to the file you saved at step 2 (a fresh dump won't be useful because of userland ASLR) and search for the (copy-pasted from sorted) lowest pointer of a specific module. If the pointer is at line X+1, then this module can be dumped by running `python3 bad_hoist/memserver/dump_module.py X`.
 
@@ -95,7 +95,7 @@ bad_hoist/ $ make clean
 bad_hoist/ $ make
 ```
 
-# 4. Fix hardcoded offsets in `rop/rop.js`
+# 6. Fix hardcoded offsets in `rop/rop.js`
 
 1. Line 16. Insert the correct GOT offset.
 2. Lines 33-34. Insert the correct libc & libkernel bases. The numbers are the same as in Makefile.
