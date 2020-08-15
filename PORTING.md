@@ -29,6 +29,7 @@ callq  ffffffffff667418 <__bss_start+0xfffffffffdd5c418>
 ```
 
 Here `0xffffffffff667308` is the first of a few hundreds of similarly looking entries. Probably it's the start of the GOT (or PLT, don't care much about the terminology). This means that the GOT is located `(1 << 64) - 0xffffffffff667308` bytes below the leaked virtual method.
+# Note: The patter will emerge in the middle of the file
 
 Now insert this offset into `bad_hoist/dumpers/dump_got.js` at line 11, and load a page that loads exploit.js, helpers.js, malloc.js, dumpers/dump_got.js. `print` function should be somehow routed to your dev PC.
 
