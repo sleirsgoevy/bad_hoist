@@ -9,10 +9,11 @@ This is more-or-less what I did for 6.51 (I didn't have any userspace dumps back
 Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). 
 
 # 2. Find GOT 
-We can do this by automated approch (2.1) if it not working then we do the manual (2.2)
+We can do this by automated approch (2.1), if its not working then we do the manual (2.2)
+
 # 2.1 GOT - Automated
 you can run the below command which will give you the GOT start
-python3 bad_hoist/GOTSearch.py bad_hoist/dumps/webkit.elf
+`python3 bad_hoist/GOTSearch.py bad_hoist/dumps/webkit.elf`
 
 # 2.2 GOT - Manual
  Then disassemble the dumped binary (wbekit.bin), extract all `CALL imm32` instructions, and sort by the target address:
@@ -39,14 +40,28 @@ callq  ffffffffff667418 <__bss_start+0xfffffffffdd5c418>
 Here `0xffffffffff667308` is the first of a few hundreds of similarly looking entries. Probably it's the start of the GOT (or PLT, don't care much about the terminology). This means that the GOT is located `(1 << 64) - 0xffffffffff667308` bytes below the leaked virtual method.
 (Note: The patter will emerge in the middle of the file)
 
+# 3 Dupming GOT entries
+1. The GOT base address needs to updated in `bad_hoist/dumpers/dump_got.js` on line 11, this address comes from objdump of webkit.elf
+2. Add these files to web server and launch it in ps4
+3. This  will create a file called `bad_hoist/dumpers/baseAddress.txt` in the same directory which will have all the address.
+4. This will take atleast takes 2 to 3 minutes to complete, you will alerted in ps4 once its completed
 
-Now insert this offset into `bad_hoist/dumpers/dump_got.js` at line 11, and load a page that loads exploit.js, helpers.js, malloc.js, dumpers/dump_got.js. `print` function should be somehow routed to your dev PC.
+# Note
+1. If the `baseAddress.txt` file has `!decrement` text in it. then it inicates base address need to be adjusted
+2. for example if you have used "10054456" as base GOT address and you see "!decrement" 5 times in the file, you have add 80 toward the base
+3. logic is for each `!decrement` add 16 to wards the base
+4. So your correct GOT base would be 10054536 (10054456 +16 +16 +16 +16 +16)
+5. Repeat the steps 2 to 4 to get a `baseAddress.txt` with any "!decrement" value in it
 
-If the script warns about "decrement!", this means that there is one more GOT entry that didn't get referenced. Increment the offset by 16.
+# 4. Find GOT entries corresponding to the required modules
+We can do this by automated approch (4.1), if its not working then we do the manual (4.2)
 
-# 2. Find GOT entries corresponding to the required modules
+# 4.1 Find GOT entries - Automated
+you can run the below command which will find the address jumps of each blocks and print it in the screen
+`python3 bad_hoist/dumpers/baseJumps.py`
 
-Run the dump_got.js script from above, this time with the correct offset. You'll get a long list of pointers, some of which are `0xeffffffe00000000`, and some others are actual code pointers. Save this output to a file (it will be useful later) and sort the pointers by their value.
+# 4.2 Find GOT entries - Manual
+You'll get a long list of pointers in the `bad_hoist/dumpers/baseAddress.txt`, some of which are `0xeffffffe00000000`, and some others are actual code pointers. Save this output to a file (it will be useful later) and sort the pointers by their value.
 
 Here for each module are a few dozens of pointers pointing into it. If two consecutive pointers differ by hundreds of megabytes, then most probably the previous module ended here and a new one just started. Example:
 
