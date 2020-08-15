@@ -58,7 +58,7 @@ We can do this by automated approch (4.1), if its not working then we can do the
 
 # 4.1 Find GOT entries - Automated
 you can run the below command which will find the address jumps of each blocks and print it in the screen
-`python3 bad_hoist/dumpers/baseJumps.py`
+`python3 bad_hoist/baseJumps.py bad_hoist/dumpers/baseAddress.txt`
 
 # 4.2 Find GOT entries - Manual
 You'll get a long list of pointers in the `bad_hoist/dumpers/baseAddress.txt`, some of which are `0xeffffffe00000000`, and some others are actual code pointers. Save this output to a file (it will be useful later) and sort the pointers by their value.
