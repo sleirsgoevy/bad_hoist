@@ -63,7 +63,6 @@ for m, ln in enumerate(flData["libkernel.elf"]):
 		sub2=""
 		while p+1 < len(flData["libkernel.elf"]):
 			if flData["libkernel.elf"][m+p].count("jb"):
-				ropValue["get_errno_addr_addr"]=flData["libkernel.elf"][m+p].split("     ")[-1].split(" ")[0]
 				sub1=flData["libkernel.elf"][m+p].split("     ")[-1].split(" ")[0]
 				for subln in (flData["libkernel.elf"]):
 					if subln.count("{}:".format(sub1)):
