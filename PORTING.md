@@ -4,6 +4,8 @@ This document will guide you through the process of getting this toolchain up an
 
 This is more-or-less what I did for 6.51 (I didn't have any userspace dumps back then). 6.72 happened to be "compatible enough", so no more porting was required.
 
+Credit **@PaulJenkin** for the automated tools.
+
 # 1. Dumping Webkit.bin
 
 Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). 
