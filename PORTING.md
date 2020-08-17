@@ -15,7 +15,7 @@ We can do this by automated approch (2.1), if its not working then we can do the
 
 # 2.1 GOT - Automated
 you can run the below command which will give you the GOT start
-`python3 bad_hoist/GOTSearch.py bad_hoist/dumps/webkit.elf`
+`python3 bad_hoist/porting/GOTSearch.py bad_hoist/dumps/webkit.elf`
 
 # 2.2 GOT - Manual
  Then disassemble the dumped binary (wbekit.bin), extract all `CALL imm32` instructions, and sort by the target address:
@@ -64,7 +64,7 @@ We can do this by automated approch (4.1), if its not working then we can do the
 
 # 4.1 Find GOT entries - Automated
 you can run the below command which will find the address jumps of each blocks and print it in the screen
-`python3 bad_hoist/baseJumps.py bad_hoist/dumpers/baseAddress.txt`
+`python3 bad_hoist/porting/baseJumps.py bad_hoist/dumpers/baseAddress.txt`
 
 # 4.2 Find GOT entries - Manual
 You'll get a long list of pointers in the `bad_hoist/dumpers/baseAddress.txt`, some of which are `0xeffffffe00000000`, and some others are actual code pointers. Save this output to a file (it will be useful later) and sort the pointers by their value.
@@ -110,7 +110,7 @@ We can do this by automated approch (7.1), if its not working then we can do the
 
 # 7.1 updating Lines 35-43 of `rop/rop.js`- Automated
 you can run the below command which will which will print the values you have replace 
-`python3 bad_hoist/addForRop.py bad_hoist/dumps`
+`python3 bad_hoist/porting/addForRop.py bad_hoist/dumps`
 
 # 7.2 updating Lines 35-43 of `rop/rop.js`- Manual
 7.2.1. `loadall` is the function in libc that contains the pivot() gadget.
