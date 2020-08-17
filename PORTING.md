@@ -42,16 +42,20 @@ Here `0xffffffffff667308` is the first of a few hundreds of similarly looking en
 
 # 3 Dupming GOT entries
 1. The GOT base address needs to updated in `bad_hoist/dumpers/dump_got.js` on line 11, this address comes from above step (ex 10063096)
-2. Add these files to web server and launch it in ps4
-3. This  will create a file called `bad_hoist/dumpers/baseAddress.txt` in the same directory which will have all the address.
-4. This will take atleast takes 2 to 3 minutes to complete, you will alerted in ps4 once its completed
+2. In `bad_hoist/` run this command:
+
+`python3 remotejs.py exploit.js helpers.js malloc.js dumpers/dump_got.js`
+
+This command will print out all GOT addresses. You'll probably want to pipe it to a file so you don't have to copy-paste them:
+
+`python3 remotejs.py exploit.js helpers.js malloc.js dumpers/dump_got.js > got-addresses.txt`
 
 # Note
-1. If the `baseAddress.txt` file has `!decrement` text in it. then it inicates base address need to be adjusted
+1. If the dump has `!decrement` text in it. then it inicates base address need to be adjusted
 2. for example if you have used "10063096" as base GOT address and you see "!decrement" 5 times in the file, you have add 80 toward the base
 3. logic is for each `!decrement` add 16 towards the base
 4. So your correct GOT base would be 10063176 (10063096 +16 +16 +16 +16 +16)
-5. Update the correct GOT bBase and Repeat the steps 2 to 4 to get a `baseAddress.txt` without any "!decrement" value in it
+5. Update the correct GOT bBase and Repeat the step 2 to get a dump without any "!decrement" value in it
 
 # 4. Find GOT entries corresponding to the required modules
 We can do this by automated approch (4.1), if its not working then we can do the manual (4.2)
