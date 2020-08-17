@@ -1,0 +1,40 @@
+<html>
+<head>
+<script>
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
+function print(val){
+    	sleep(100); 
+    	var hr = new XMLHttpRequest();
+    	var url = "script.php";
+    	var vars = "value="+val;	
+    	hr.open("POST", url, true);
+    	hr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    	hr.onreadystatechange = function() {
+	    	if(hr.readyState == 4 && hr.status == 200) {
+		    	var return_data = hr.responseText;
+	    	}
+    	}
+    	hr.send(vars);
+}
+function craetefile(){
+	print("startfile");
+}
+</script>
+</head>
+<body>
+<script src="exploit.js"></script>
+<script src="helpers.js"></script>
+<script src="malloc.js"></script>
+<script src="rop.js"></script>
+<script>craetefile();</script>
+<script src="dump_got.js"></script>
+<script>alert("completed");</script>
+</body>
+</html>
