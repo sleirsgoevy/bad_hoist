@@ -6,7 +6,7 @@ This is more-or-less what I did for 6.51 (I didn't have any userspace dumps back
 
 Credit **@PaulJenkin** for the automated tools.
 
-# 1. Dumping Webkit.bin
+# 1. Dump Webkit.bin
 
 Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). 
 
@@ -46,7 +46,7 @@ callq  ffffffffff667418 <__bss_start+0xfffffffffdd5c418>
 Here `0xffffffffff667308` is the first of a few hundreds of similarly looking entries. Probably it's the start of the GOT (or PLT, don't care much about the terminology). This means that the GOT is located `(1 << 64) - 0xffffffffff667308` bytes below the leaked virtual method. for ex the above conversion give you a value like 10063096
 (Note: The patter will emerge in the middle of the file)
 
-# 3. Dupming GOT entries
+# 3. Dump GOT entries
 1. The GOT base address needs to updated in `bad_hoist/dumpers/dump_got.js` on line 11, this address comes from above step (ex 10063096)
 2. In `bad_hoist/` run this command:
 
