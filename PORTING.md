@@ -8,9 +8,9 @@ Credit **@PaulJenkin** for the automated tools.
 
 # 1. Dump Webkit.bin
 
-Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail). 
+Dump WebKit using `python3 bad_hoist/memserver/dump_module.py -1` (this should never fail).
 
-# 2. Find GOT 
+# 2. Find GOT
 
 ## 2.1. GOT - Automated
 
@@ -110,13 +110,21 @@ bad_hoist/ $ make
 
 1. Line 16. Insert the correct GOT offset.
 2. Lines 33-34. Insert the correct libc & libkernel bases. The numbers are the same as in Makefile.
+
 2.1. `loadall` is the function in libc that contains the pivot() gadget.
+
 2.2. `saveall` is a twin function of `loadall` that saves registers instead of restoring them.
+
 2.3. `setjmp` and `longjmp` are not used, as `loadall` and `saveall` play the same role here. You can just strip these out.
+
 2.4. `pivot` is the pivot() gadget, see above.
+
 2.5. `infloop` is a EB FE (`.loop\njmp loop`) gadget, not used in the end exploit but is useful for debugging ropchains.
+
 2.6. `jop_frame` is a JOP gadget that reads as `push rbp ; mov rbp, rsp ; mov rax, [rdi] ; call qword [rax]`. It is used for cleanly returning from subthreads, see `ps4-rop-8cc/librop/extcall.{c,h}`.
+
 2.7. `get_errno_addr` is a function that returns the address of the errno(3) variable for the current thread. To find this address, follow the `jb` jump after any syscall instruction, then follow an indirect jump, and you will see a CALL to this function.
+
 2.8. `pthread_create` is the only function in libkernel that calls the `thr_new` syscall wrapper. First find the wrapper by searching for the thr_new syscall number, then find a call to this wrapper, then search backward for a function prologue.
 
 ## 6.2. Fix hardcoded offsets in `rop/rop.js` - Automated
