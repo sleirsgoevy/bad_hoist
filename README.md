@@ -1,10 +1,10 @@
-# bad_hoist
+# 7.02
 
-This is an **actually working** implementation of Fire30's [bad_hoist exploit](https://github.com/Fire30/bad_hoist).
+This branch is based on [the BHEU exploit](https://github.com/sleirsgoevy/PS4-webkit-exploit-7.02) and is not related to the bad_hoist exploit. It is only kept here to re-use utility scripts from the bad_hoist version without copying.
 
 ## Supported firmwares
 
-This exploit has been tested and proven to be working on FW 6.51. ~~This should work up to 6.72 with minor changes, however various offsets need to be adjusted~~ 6.72 confirmed to be working.
+This branch is for firmware 7.02. The [main branch](https://github.com/sleirsgoevy/bad_hoist/tree/master) supports firmwares 6.50 to 6.72.
 
 If you want to port this to an unsupported firmware, see [here](https://github.com/sleirsgoevy/bad_hoist/blob/master/PORTING.md).
 

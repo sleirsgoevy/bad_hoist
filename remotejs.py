@@ -3,22 +3,31 @@ import http.server, queue, threading, sys
 q1 = queue.Queue()
 q2 = queue.Queue()
 
-class Handler(http.server.BaseHTTPRequestHandler):
+class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
+        if self.path != '/':
+            return http.server.SimpleHTTPRequestHandler.do_GET(self)
         self.send_back(b'''\
 <html>
 <head>
 <title>RemoteJS</title>
 </head>
-<body>
-<pre id="data"></pre>
+<body onload="go()">
 <script>
+window.postExploit = function()
+{
+var pre = document.createElement('pre');
+pre.id = 'data';
+document.body.appendChild(pre);
+
 function print(s, local)
 {
-    document.getElementById('data').appendChild(document.createTextNode(s));
+    document.getElementById('data').appendChild(document.createTextNode(s+(local?'':'\\n')));
     if(!local)
         xhr(''+s+'\\n', '/log');
 }
+
+window.print = print;
 
 function handle(s)
 {
@@ -54,7 +63,17 @@ function xhr(s, p)
 }
 
 xhr('', '/');
+}
 </script>
+<script src="external/utils.js"></script>
+<script src="external/int64.js"></script>
+<script src="external/ps4.js"></script>
+<button id="input1" onfocus="handle2()"></button>
+<button id="input2"></button>
+<button id="input3" onfocus="handle2()"></button>
+<select id="select1">
+<option value="value1">Value1</option>
+</select>
 </body>
 </html>''')
     def do_POST(self):

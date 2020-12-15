@@ -2,18 +2,18 @@ all: ../dumps/webkit.elf ../dumps/libc.elf ../dumps/libkernel.elf
 
 ../dumps/webkit.bin:
 	mkdir -p ../dumps
-	echo 'Estimated download size: 25 MB'
-	python3 dump_module.py -1 ../dumps/webkit.bin
+	echo 'Estimated download size: 20 MB'
+	CHUNK_SIZE=20971520 python3 dump_module.py -1 ../dumps/webkit.bin
 
 ../dumps/libc.bin:
 	mkdir -p ../dumps
 	echo 'Estimated download size: 1.2 MB'
-	python3 dump_module.py 582 ../dumps/libc.bin
+	CHUNK_SIZE=300000 python3 dump_module.py 573 ../dumps/libc.bin
 
 ../dumps/libkernel.bin:
 	mkdir -p ../dumps
-	echo 'Estimated download size: 300 KB'
-	python3 dump_module.py 705,-0x10000 ../dumps/libkernel.bin
+	echo 'Estimated download size: 400 KB'
+	CHUNK_SIZE=100000 python3 dump_module.py 789 ../dumps/libkernel.bin
 
 ../dumps/%.asm: ../dumps/%.bin
 	printf 'section .text\nuse64\nincbin "$<"' > $@

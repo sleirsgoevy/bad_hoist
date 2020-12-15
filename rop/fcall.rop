@@ -42,7 +42,7 @@ rdi_bak:
 dq 0
 pop rsi
 $retbuf
-mov [rsi], rax
+mov [rsi], rax ; mov al, 1
 $pivot_addr
 
 $$function fcall(faddr, arg1, arg2, arg3, arg4, arg5, arg6)

