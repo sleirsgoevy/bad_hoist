@@ -3,7 +3,7 @@ all: ../dumps/webkit.elf ../dumps/libc.elf ../dumps/libkernel.elf
 ../dumps/webkit.bin:
 	mkdir -p ../dumps
 	echo 'Estimated download size: 20 MB'
-	CHUNK_SIZE=20971520 python3 dump_module.py -1 ../dumps/webkit.bin
+	CHUNK_SIZE=30408704 python3 dump_module.py -1,-0x900000 ../dumps/webkit.bin
 
 ../dumps/libc.bin:
 	mkdir -p ../dumps

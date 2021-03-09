@@ -8,7 +8,7 @@ var ptr_2 = read_ptr_at(ptr_1);
 print("ptr_2 = "+hex(ptr_2));
 var ptr_3 = read_ptr_at(ptr_2);
 print("ptr_3 = "+hex(ptr_3));
-var ptr_4 = ptr_3 - 10117000;
+var ptr_4 = ptr_3 - 10142888;
 
 while(true)
 {

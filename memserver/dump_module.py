@@ -18,7 +18,7 @@ else:
 if idx < 0:
     got_func = some_func
 else:
-    plt = some_func - 10117000
+    plt = some_func - 10142888
     plt_entry = plt + idx * 16
     q = read_mem(plt_entry, 6)
     assert q[:2] == b'\xff%', q

@@ -20,7 +20,8 @@ dq 1
 #move num2 to num1
 pop rsi
 dp num1
-mov [rsi], rax
+mov [rsi], rax ; mov al, 1
+mov rax, [rsi]
 
 #perform addition
 add rax, rcx
@@ -28,7 +29,8 @@ add rax, rcx
 #store result in num2
 pop rsi
 dp num2
-mov [rsi], rax
+mov [rsi], rax ; mov al, 1
+mov rax, [rsi]
 
 #write output
 mov [rdi], rax
@@ -44,7 +46,13 @@ movzx eax, al
 
 #multiply by 16
 shl rax, 3
-mov rsi, rax ; mov rax, rsi
+pop rsi
+dp rsi_addr
+mov [rsi], rax ; mov al, 1
+mov rax, [rsi]
+pop rsi
+rsi_addr:
+dq 0
 add rax, rsi
 
 #add offset
@@ -53,7 +61,8 @@ dp condjump
 add rax, rcx
 pop rsi
 dp pop_rsp
-mov [rsi], rax
+mov [rsi], rax ; mov al, 1
+mov rax, [rsi]
 pop rsp
 pop_rsp:
 dq 0
