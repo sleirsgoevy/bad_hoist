@@ -73,7 +73,11 @@ def final_pass(l, ls, gs):
     def push_comment(c):
         if last_gadgets: last_gadgets.append('//'+c)
         else: ans.append('//'+c)
+    last_custom_code = False
     for i in l:
+        if last_custom_code and not i.startswith('$$'):
+            push_normal('ropchain_offset = %d;'%(sp_offset//4))
+        last_custom_code = i.startswith('$$')
         if i.endswith(':'):
             push_comment(i)
             continue
