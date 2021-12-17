@@ -1,6 +1,6 @@
 ALARM ?= beep # will be called each time user interaction is needed
 
-all: dumps/gadgets.txt dumps/syscalls.txt
+all: dumps/gadgets.txt dumps/syscalls.txt rop/relocator.txt
 
 always_run:
 
@@ -19,5 +19,8 @@ dumps/gadgets.txt: dumps/webkit-gadgets.txt dumps/libc-gadgets.txt
 dumps/syscalls.txt: dumps
 	objdump -D dumps/libkernel.elf | python3 rop/syscalls.py > dumps/syscalls.txt
 
+rop/relocator.txt: dumps/gadgets.txt rop/relocator.rop
+	python3 rop/compiler.py rop/relocator.rop dumps/gadgets.txt > rop/relocator.txt
+
 clean:
-	rm -rf dumps
+	rm -rf dumps rop/relocator.txt

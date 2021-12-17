@@ -27,7 +27,7 @@ def get_base():
                 assert q[:2] == b'\xff%', q
                 got_entry = plt_entry + 6 + int.from_bytes(q[2:], 'little')
                 got_func = read_ptr(got_entry)
-                got_func += offset0
+            got_func += offset0
             return got_func
         except client.BrowserRestartedError: pass
 

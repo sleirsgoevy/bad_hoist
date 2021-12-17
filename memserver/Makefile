@@ -2,8 +2,8 @@ all: ../dumps/webkit.elf ../dumps/libc.elf ../dumps/libkernel.elf
 
 ../dumps/webkit.bin:
 	mkdir -p ../dumps
-	echo 'Estimated download size: 32 MB'
-	python3 dump_module.py -1 ../dumps/webkit.bin
+	echo 'Estimated download size: 49 MB'
+	python3 dump_module.py -1,-0x1000000 ../dumps/webkit.bin
 
 ../dumps/libc.bin:
 	mkdir -p ../dumps
