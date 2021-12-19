@@ -35,9 +35,9 @@ var saveall_addr = libc_base+0x21944;
 var loadall_addr = libc_base+0x25e88;
 var pivot_addr = libc_base+0x25efe;
 var infloop_addr = libc_base+0x395c0;
-var jop_frame_addr = libc_base+0x6de90;
+var jop_frame_addr = libc_base+0x661d0;
 var get_errno_addr_addr = libkernel_base+0xc480;
-var pthread_create_addr = libkernel_base+0x19810;
+var pthread_create_addr = libkernel_base+0x24e10;
 
 function saveall()
 {
