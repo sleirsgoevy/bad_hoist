@@ -37,9 +37,9 @@ add rax, rsi
 
 # jump
 mov rax, [rax]
-pop rsi
+pop rcx
 dp the_rsp
-mov [rsi], rax
+mov [rcx], rax
 pop rsp
 the_rsp:
 dq 0
@@ -86,9 +86,9 @@ mov rax, r8
 pop rsi
 dq -1
 add rax, rsi
-pop rsi
+pop rcx
 dp caret_ptr
-mov [rsi], rax
+mov [rcx], rax
 pop rsp
 dp continue_loop
 
@@ -97,19 +97,19 @@ mov rax, r8
 pop rsi
 dq 1
 add rax, rsi
-pop rsi
+pop rcx
 dp caret_ptr
-mov [rsi], rax
+mov [rcx], rax
 pop rsp
 dp continue_loop
 
 dot:
 mov rax, r8
 mov al, [rax]
-pop rsi
+pop rdi
 output_ptr:
 $outputbuf
-mov [rsi], al
+mov [rdi], al
 pop rdi
 dp output_ptr+0x80
 inc qword [rdi - 0x80]
@@ -132,31 +132,31 @@ dp continue_loop
 
 slide_right:
 # run slide_do with step=1, xor=1
-pop rsi
+pop rcx
 dp slide_xor
 pop rax
 dq 1
-mov [rsi], rax
-pop rsi
+mov [rcx], rax
+pop rcx
 dp slide_step
 pop rax
 dq -1 # inverted
-mov [rsi], rax
+mov [rcx], rax
 pop rsp
 dp slide_do
 
 slide_left:
 # run slide_do with step=-1, xor=0
-pop rsi
+pop rcx
 dp slide_xor
 pop rax
 dq 0
-mov [rsi], rax
-pop rsi
+mov [rcx], rax
+pop rcx
 dp slide_step
 pop rax
 dq 1 # inverted
-mov [rsi], rax
+mov [rcx], rax
 # fallthrough
 
 slide_do:
@@ -166,10 +166,10 @@ mov al, [rax]
 test al, al ; setne al
 movzx eax, al
 # now rax=1 if byte != 0 else 0
-pop rcx
+pop r8
 slide_xor:
 dq 0
-xor rax, rcx # actually a CNOT, see above
+xor rax, r8 # actually a CNOT, see above
 
 # index into jump table
 shl rax, 3
@@ -177,9 +177,9 @@ pop rsi
 dp slide_do_jmptbl
 add rax, rsi
 mov rax, [rax]
-pop rsi
+pop rcx
 dp slide_do_jmp
-mov [rsi], rax
+mov [rcx], rax
 pop rsp
 slide_do_jmp:
 dq 0
@@ -191,8 +191,8 @@ dp do_slide
 do_slide:
 # load rdi = ip
 pop rdi
-dp ip-0x18
-mov rdi, [rdi + 0x18] ; mov rax, rdi
+dp ip-8
+mov rdi, [rdi + 8] ; lea rax, [rdi + rsi*2]
 
 slide_loop:
 # load char & check if it is [ or ]
@@ -207,9 +207,10 @@ pop rsi
 dq ord(']')
 sub rax, rsi
 test al, al ; setne al
-mov rsi, rax ; mov rax, rsi
-add rax, rsi # now al=2 if char != ']' else 0
-add rax, rcx # now cl=1 if char == ']', 2 if char == '[', 3 otherwise
+#mov rsi, rax ; mov rax, rsi
+#add rax, rsi # now al=2 if char != ']' else 0
+#add rax, rcx # now cl=1 if char == ']', 2 if char == '[', 3 otherwise
+lea rax, [rcx + rax*2]
 movzx eax, al
 
 # index into coefficient table (see below)
@@ -238,9 +239,9 @@ pop rsi
 dp slide_loop_jmptbl
 add rax, rsi
 mov rax, [rax]
-pop rsi
+pop rcx
 dp slide_loop_jmp
-mov [rsi], rax
+mov [rcx], rax
 pop rsp
 slide_loop_jmp:
 dq 0
@@ -259,16 +260,16 @@ slide_cont:
 pop rsi
 slide_step:
 dq 0
-sub rdi, rsi ; mov rdx, rdi
+sub rdi, rsi ; vcvtsi2sd xmm0, xmm0, rdi
 pop rsp
 dp slide_loop
 
 slide_end:
 # set 
 mov rax, rdi
-pop rsi
+pop rcx
 dp ip
-mov [rsi], rax
+mov [rcx], rax
 
 continue_loop:
 pop rdi

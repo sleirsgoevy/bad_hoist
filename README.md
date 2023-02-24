@@ -1,18 +1,12 @@
-# bad_hoist
+# PS5 WebKit ROP
 
-This is an **actually working** implementation of Fire30's [bad_hoist exploit](https://github.com/Fire30/bad_hoist).
-
-## Supported firmwares
-
-This exploit has been tested and proven to be working on FW 6.51. ~~This should work up to 6.72 with minor changes, however various offsets need to be adjusted~~ 6.72 confirmed to be working.
-
-If you want to port this to an unsupported firmware, see [here](https://github.com/sleirsgoevy/bad_hoist/blob/master/PORTING.md).
+This is a ROP toolchain for the PS5's web browser, based on the FontFace type confusion vulnerability. Works on firmware 4.03.
 
 ## ROP compiler setup
 
 In order to run the ROP compiler you need to have dumps of WebKit, libc & libkernel.
 
-Run `make` and follow instructions to obtain the dumps.
+You will need userland binaries to use this. Obtain them using [this payload](https://github.com/sleirsgoevy/ps4jb-payloads/tree/bd-jb/ps5-self-dumper/).
 
 Dependencies: `python3`, `gcc`, `ROPgadget`
 

